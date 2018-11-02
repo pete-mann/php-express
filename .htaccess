@@ -1,0 +1,10 @@
+# This htaccess is essential for the API to operate, note that the rewrite packs any query string into the request, the
+# results of which will be located in the $_GET object
+
+<IfModule mod_rewrite.c>
+  # Rewrite for REST API
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule api/(.*)$ api/index.php?request=$1 [QSA,NC,L]
+</IfModule>
