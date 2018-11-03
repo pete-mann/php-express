@@ -2,6 +2,7 @@
 
 /**
  * This is the entry point to the API, routes are defined here
+ * @author Pete Mann - peter.mann.design@gmail.com
  */
 
 require_once 'app/core/App.php';
@@ -14,7 +15,12 @@ $ctrlUser = new CtrlUser();
  * Specify a callable method of a class like this so as to use a controller to handle the request. This approach will
  * keep this file small
  */
-$app->post('/user', [$ctrlUser, 'index']);
+$app->post('/user/:userId', [$ctrlUser, 'index']);
+
+/**
+ * This example endpoint shows how to use named params
+ */
+$app->post('/user/:userId', [$ctrlUser, 'show']);
 
 /**
  * The request method includes a test method that can be used to simply debug the application. This approach illustrates
