@@ -1,5 +1,7 @@
 <?php
 
+namespace ExpressPHP\controllers;
+
 /**
  * The CtrlUser class is used handle logic associated with users
  * @author Pete Mann - peter.mann.design@gmail.com

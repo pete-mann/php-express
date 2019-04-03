@@ -1,0 +1,23 @@
+{
+    "name": "pete/php-express",
+    "description": "A light weight php version of expressjs",
+    "type": "project",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "Pete Mann",
+            "email": "peter.mann.design@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ExpressPHP\\": "api/app/"
+        }
+    },
+    "require": {
+        "firebase/php-jwt": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7"
+    }
+}

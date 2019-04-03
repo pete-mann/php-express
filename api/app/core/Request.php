@@ -1,9 +1,13 @@
 <?php
 
+namespace ExpressPHP\core;
+
 /**
+ * Class Request
  * The Request class is used to decode a request into an object. The object can then be used
  * by the application or developer. This class is a singleton, because there is only one client request
  * @author Pete Mann - peter.mann.design@gmail.com
+ * @package ExpressPHP\core
  */
 class Request {
 
@@ -25,10 +29,12 @@ class Request {
 
   private $headers;
 
+  private $protocol;
+
     /**
      * Request constructor is used to initialise the Request object, this includes converting the request into an object
      * for the program to use
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct() {
     $this->compileOriginalUrl()
@@ -45,7 +51,7 @@ class Request {
 
     /**
      * The test method is used to return the request object for the purpose of debugging
-     * @return string
+     * @return array
      */
     public function test() {
         return [
@@ -91,7 +97,7 @@ class Request {
      * The compileMethod method is used to extract the method used to call the API and store the method as part of the
      * Request object
      * @return $this
-     * @throws Exception
+     * @throws \Exception
      */
     private function compileMethod() {
         $method = $_SERVER["REQUEST_METHOD"];
@@ -102,7 +108,7 @@ class Request {
             } else if($_SERVER["HTTP_X_HTTP_METHOD"] == "PUT") {
                 $method = "PUT";
             } else {
-                throw new Exception('Method not supported');
+                throw new \Exception('Method not supported');
             }
         }
         $this->setMethod($method);
@@ -178,18 +184,17 @@ class Request {
     /**
      * The compileQuery method is used to compile the query string into an object if there are any queries in the string.
      * This method also extends the url, by allowing serialised arrays to be passed in the form of [1,2,3,4]
-     * @return $this
+     * @return Request
      */
     private function compileQuery() {
         $parsedURL = parse_url($this->originalUrl);
         $queryString = array_key_exists('query', $parsedURL) ? $parsedURL['query'] : '';
         $queries = [];
-        $out = '';
         if($queryString) parse_str($queryString, $queries);
         foreach($queries as $key => $query) {
             if(is_string($query)) {
                 if($query[0] == '[' && substr($query, - 1) == ']') {
-                    $queries[$key] = explode(',', substr($query, 1, (count($query) - 2)));
+                    $queries[$key] = explode(',', substr($query, 1, (strlen($query) - 2)));
                 }
             }
         }
@@ -364,7 +369,7 @@ class Request {
      * The matchRoutePath method is used to determine if the specified route path matches the path that was used to call
      * the API. Currently path matching is a simple equality operation, with the addition of named parameters e.g
      * /users/:id will
-     * @param $path
+     * @param string $routePath
      * @return bool
      */
     public function matchRoutePath($routePath) {
@@ -395,52 +400,52 @@ class Request {
         //    return $this->path === $path || count($this->getParams()) > 0;
     }
 
-    /**
-     * The parseNamedParams method is used to parse any named params in the user defined path
-     * @param $path
-     * @return array
-     * @throws Exception
-     */
-    private function parseNamedParams($path) {
-        $patternAsRegex = $this->findRegex($path);
-        preg_match($patternAsRegex, $this->path, $matches);
-        return array_intersect_key(
-            $matches,
-            array_flip(array_filter(array_keys($matches), 'is_string'))
-        );
-    }
-
-    /**
-     * method is unused
-     * @param $pattern
-     * @return string
-     * @throws Exception
-     */
-    private function findRegex($pattern) {
-        if(preg_match('/[^-:\/_{}()a-zA-Z\d]/', $pattern)) throw new Exception('Invalid pattern');
-
-        // Turn "(/)" into "/?"
-        $pattern = preg_replace('#\(/\)#', '/?', $pattern);
-
-        // Create capture group for ":parameter"
-        $allowedParamChars = '[a-zA-Z0-9\_\-]+';
-        $pattern = preg_replace(
-            '/:(' . $allowedParamChars . ')/',   # Replace ":parameter"
-            '(?<$1>' . $allowedParamChars . ')', # with "(?<parameter>[a-zA-Z0-9\_\-]+)"
-            $pattern
-        );
-
-        // Create capture group for '{parameter}'
-        $pattern = preg_replace(
-            '/{('. $allowedParamChars .')}/',    # Replace "{parameter}"
-            '(?<$1>' . $allowedParamChars . ')', # with "(?<parameter>[a-zA-Z0-9\_\-]+)"
-            $pattern
-        );
-
-        // Add start and end matching
-        $patternAsRegex = "@^" . $pattern . "$@D";
-
-        return $patternAsRegex;
-    }
+//    /**
+//     * The parseNamedParams method is used to parse any named params in the user defined path
+//     * @param $path
+//     * @return array
+//     * @throws Exception
+//     */
+//    private function parseNamedParams($path) {
+//        $patternAsRegex = $this->findRegex($path);
+//        preg_match($patternAsRegex, $this->path, $matches);
+//        return array_intersect_key(
+//            $matches,
+//            array_flip(array_filter(array_keys($matches), 'is_string'))
+//        );
+//    }
+//
+//    /**
+//     * method is unused
+//     * @param $pattern
+//     * @return string
+//     * @throws \Exception
+//     */
+//    private function findRegex($pattern) {
+//        if(preg_match('/[^-:\/_{}()a-zA-Z\d]/', $pattern)) throw new \Exception('Invalid pattern');
+//
+//        // Turn "(/)" into "/?"
+//        $pattern = preg_replace('#\(/\)#', '/?', $pattern);
+//
+//        // Create capture group for ":parameter"
+//        $allowedParamChars = '[a-zA-Z0-9\_\-]+';
+//        $pattern = preg_replace(
+//            '/:(' . $allowedParamChars . ')/',   # Replace ":parameter"
+//            '(?<$1>' . $allowedParamChars . ')', # with "(?<parameter>[a-zA-Z0-9\_\-]+)"
+//            $pattern
+//        );
+//
+//        // Create capture group for '{parameter}'
+//        $pattern = preg_replace(
+//            '/{('. $allowedParamChars .')}/',    # Replace "{parameter}"
+//            '(?<$1>' . $allowedParamChars . ')', # with "(?<parameter>[a-zA-Z0-9\_\-]+)"
+//            $pattern
+//        );
+//
+//        // Add start and end matching
+//        $patternAsRegex = "@^" . $pattern . "$@D";
+//
+//        return $patternAsRegex;
+//    }
 
 }

@@ -1,9 +1,27 @@
-<?php
+### Php Express
+This project is a light weight version of the popular expressjs Nodejs framework.
 
-/**
- * This is the entry point to the API, routes are defined here
- * @author Pete Mann - peter.mann.design@gmail.com
- */
+### About
+While this is similar to Expressjs, this project does not attempt to do everything that Expressjs does. For example regex 
+route matching is currently not supported, however named params are.
+
+The project is designed for Apache with mod_rewrite support required. NGINX support is not included, but that could be 
+added if required. 
+
+### Composer
+This project requires composer for autoloading.
+
+### Tests
+Some tests have been written using PHPUnit, there is currently some minor refactoring required to make this project testable. 
+This is because the program depends on Apache or similar webserver to glean data such as the current URL. This data will need
+to be mocked during testing.
+
+### TODO
+Include JSON schema validation of request body data.
+
+### Example usage
+This example usage is included in the `/api/index.php` file and is presented here for the benfit of readers.
+```
 require __DIR__ . "/../vendor/autoload.php";
 
 use \ExpressPHP\core\App;
@@ -61,3 +79,4 @@ $app->otherwise(function(Request $req, Response $res) {
         'message' => "No endpoint was found matching the request path of: {$req->getPath()}"
     ]);
 });
+```

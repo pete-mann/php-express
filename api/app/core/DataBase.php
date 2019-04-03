@@ -1,9 +1,13 @@
 <?php
 
+namespace ExpressPHP\core;
+
 /**
+ * Class DataBase
  * The DataBase class is used to connect to a mysql data base.
  * This is a static singleton class that holds a copy of it's connection.
  * @author Pete Mann - peter.mann.design@gmail.com
+ * @package ExpressPHP\core
  */
 class DataBase {
 
@@ -21,7 +25,7 @@ class DataBase {
     /**
      * The __destruct should destroy the database connection
      */
-    private function __destruct() {
+    public function __destruct() {
         self::destroyConnection();
     }
 
@@ -34,7 +38,8 @@ class DataBase {
 
     /**
      * The setEnv method is used to set the environment array which is later used to connect to the database
-     * @param array $env [description]
+     * @param array $env [The env param contains the connection information used to connect to the database]
+     * @param $mode [The mode param is used to determine the type of connection, toggling exceptions on/off]
      */
     public static function setEnv(array $env, $mode) {
         self::$env = $env;
@@ -51,11 +56,11 @@ class DataBase {
         } else {
             try {
                 # MySQL with PDO_MYSQL
-                self::$connection = new PDO(
+                self::$connection = new \PDO(
                     "mysql:host=" . $env['host'] . ";dbname=" . $env['database'] . ";charset=utf8",
                     $env['username'],
                     $env['password'],
-                    [PDO::ATTR_EMULATE_PREPARES => false]
+                    [\PDO::ATTR_EMULATE_PREPARES => false]
                 );
 
                 # PDO::ATTR_EMULATE_PREPARES => false
@@ -64,13 +69,13 @@ class DataBase {
 
                 if(self::$mode == 'prd') {
                     # production setting
-                    self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+                    self::$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
                 } else {
                     # development setting
-                    self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    self::$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 }
 
-            } catch(PDOException $e) {
+            } catch(\PDOException $e) {
                 echo $e;
             }
         }
@@ -78,7 +83,7 @@ class DataBase {
 
     /**
      * The getConnection method is used to get a connection to the database
-     * @return PDO Returns a PDO database connection
+     * @return \PDO Returns a PDO database connection
      */
     public static function getConnection() {
         if(!self::$connection) self::connect(self::$env);
@@ -86,4 +91,3 @@ class DataBase {
     }
 
 }
-?>
