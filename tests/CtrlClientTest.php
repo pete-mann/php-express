@@ -8,7 +8,7 @@ class ClientTest extends TestCase {
     private $Client;
 
     protected function setUp() {
-        $this->Client = new Client(1, 'NAVY');
+        $this->Client = new Client(1, 'Test Client');
     }
 
     public function test__construct() {}
