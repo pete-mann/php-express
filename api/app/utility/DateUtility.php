@@ -4,7 +4,6 @@ namespace ExpressPHP\utility;
 
 /**
  * The DateUtility class is used to provide formatting data required throughout the application
- * This is a static singleton class
  * @author Pete Mann - peter.mann.design@gmail.com
  */
 class DateUtility {

@@ -7,7 +7,7 @@ use ExpressPHP\middlewares\Middleware;
 /**
  * Class App
  * The App class is used to start the API application, this class will load the environment file,
- * create a router, request and response classes. This class also sets up some of the error
+ * and instantiate the request and response classes. This class also sets up some of the error
  * handling methods used to catch unhandled errors and exceptions.
  * @author Pete Mann - peter.mann.design@gmail.com
  * @package ExpressPHP\core
@@ -19,8 +19,6 @@ class App {
     private $req;
 
     private $res;
-
-    private $router;
 
     private $middlewares = [];
 
@@ -34,14 +32,14 @@ class App {
         ob_start(); # Use output buffering
         $this->res = new Response();
         try {
-            $this->req = new Request();
-        } catch(\Exception $e) {
-            $this->res->send(500, [
+            $server = new Server(); # Init the Server class
+            $this->req = $server->getRequest(); # Create a new Request
+        } catch(\BadMethodCallException $e) {
+            $this->res->send(400, [
                 'title' => 'An error occurred',
                 'message' => ($this->env['config']['mode'] === 'dev') ? $e->getMessage() : 'Please contact your system administrator'
             ]);
         }
-//        $this->router = new Router($this->req, $this->res);
         try {
             $this->loadEnv()
                  ->setDBEnv()
@@ -59,7 +57,7 @@ class App {
      * The loadEnv method is used to load the environment file into the application
      * @return App so that this method can be chained
      */
-    private function loadEnv() {
+    private function loadEnv(): App {
         $env = json_decode(file_get_contents('./app/core/.env'), true);
         $this->setEnv($env);
         return $this;
@@ -77,7 +75,7 @@ class App {
      * The getEnv method is used to return the environmental object to the caller
      * @return array	object that contains the environmental variables
      */
-    public function getEnv() {
+    public function getEnv(): array {
         return $this->env;
     }
 
@@ -85,7 +83,7 @@ class App {
      * The setDBEnv method is used for setting the environmental variables in the DataBase class
      * @return App $this for method chaining
      */
-    public function setDBEnv() {
+    public function setDBEnv(): App {
         DataBase::setEnv($this->env['database'][$this->env['config']['mode']], $this->env['config']['mode']);
         return $this;
     }
@@ -94,8 +92,9 @@ class App {
      * The setEnvironmentErrorMode is used to set the mode of the application, error reporting and error
      * display should not be enabled in production. This setting can be toggled in the environmental
      * variables file
+     * @return App $this for method chaining
      */
-    private function setEnvironmentErrorMode() {
+    private function setEnvironmentErrorMode(): App {
         $this->setErrorReporting($this->env['config']['reportError']);
         $this->setErrorDisplay($this->env['config']['displayError']);
         return $this;
@@ -103,8 +102,9 @@ class App {
 
     /**
      * The setCustomHeader method is used to set a custom header for each response
+     * @return App $this for method chaining
      */
-    private function setCustomHeader() {
+    private function setCustomHeader(): App {
         header('X-Powered-By: php-express');
         return $this;
     }
@@ -121,9 +121,9 @@ class App {
 
     /**
      * The getErrorReporting method is used to return the value that is assigned to the error_reporting method
-     * @return boolean used to determine the error reporting mode
+     * @return bool used to determine the error reporting mode
      */
-    public function getErrorReporting() {
+    public function getErrorReporting(): bool {
         return $this->env['config']['reportError'];
     }
 
@@ -136,14 +136,13 @@ class App {
         ini_set('log_errors', true);
         ini_set('display_errors', $isDisplayError);
         ini_set('display_startup_errors', $isDisplayError);
-
     }
 
     /**
      * The getErrorDisplay method is used to return the value that is assigned to the display_errors and display_startup_errors
      * @return boolean used to determine the error display mode
      */
-    public function getErrorDisplay() {
+    public function getErrorDisplay(): bool {
         return $this->env['config']['displayError'];
     }
 
@@ -199,11 +198,20 @@ class App {
         $this->isAuthenticated = $isAuthenticated;
     }
 
-    public function middleware(Middleware ...$middlewares) {
+    /**
+     * The middleware method is used to register a Middleware class type to the specified endpoint. The Middleware class
+     * will be called before the request controller logic is executed.
+     * @param Middleware ...$middlewares
+     * @return App
+     */
+    public function middleware(Middleware ...$middlewares): App {
         $this->middlewares = $middlewares;
         return $this;
     }
 
+    /**
+     * The resetMiddlewares is used to reset the middlewares array for the next endpoint to be evaluated.
+     */
     private function resetMiddlewares() {
         $this->middlewares = [];
     }
@@ -246,7 +254,7 @@ class App {
     }
 
     /**
-     * The get method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The get method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function get(...$args) {
@@ -257,7 +265,7 @@ class App {
     }
 
     /**
-     * The put method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The put method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function put(...$args) {
@@ -268,7 +276,7 @@ class App {
     }
 
     /**
-     * The post method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The post method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function post(...$args) {
@@ -279,7 +287,7 @@ class App {
     }
 
     /**
-     * The patch method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The patch method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function patch(...$args) {
@@ -290,7 +298,7 @@ class App {
     }
 
     /**
-     * The delete method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The delete method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function delete(...$args) {
@@ -301,7 +309,7 @@ class App {
     }
 
     /**
-     * The options method is used to register an api endpoint on the application, these registrations are forwarded to the router.
+     * The options method is used to register an api endpoint on the application.
      * @param array $args [accepts an array that is used to define the properties of the endpoint]
      */
     public function options(...$args) {

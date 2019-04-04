@@ -11,42 +11,44 @@ namespace ExpressPHP\core;
  */
 class Request {
 
-  private $originalUrl;
+    private $originalUrl = '';
 
-  private $method;
+    private $method = '';
 
-  private $path;
+    private $path = '';
 
-  private $params;
+    private $params = [];
 
-  private $query;
+    private $query = [];
 
-  private $body;
+    private $body = [];
 
-  private $files;
+    private $files = [];
 
-  private $cookie;
+    private $cookie = [];
 
-  private $headers;
+    private $headers = [];
 
-  private $protocol;
+    private $protocol = '';
 
-    /**
-     * Request constructor is used to initialise the Request object, this includes converting the request into an object
-     * for the program to use
-     * @throws \Exception
-     */
-    public function __construct() {
-    $this->compileOriginalUrl()
-         ->compileMethod()
-         ->compilePath()
-         ->compileParams()
-         ->compileQuery()
-         ->compileBody()
-         ->compileFiles()
-         ->compileCookie()
-         ->compileHeaders()
-         ->compileProtocol();
+    public function __construct($originalUrl,
+                                $method,
+                                $path,
+                                $query,
+                                $body,
+                                $files,
+                                $cookie,
+                                $headers,
+                                $protocol) {
+        $this->originalUrl = $originalUrl;
+        $this->method = $method;
+        $this->path = $path;
+        $this->query = $query;
+        $this->body = $body;
+        $this->files = $files;
+        $this->cookie = $cookie;
+        $this->headers = $headers;
+        $this->protocol = $protocol;
     }
 
     /**
@@ -55,34 +57,17 @@ class Request {
      */
     public function test() {
         return [
-            "originalUrl" => $this->originalUrl,
-            "method" => $this->method,
-            "path" => $this->path,
-            "protocol" => $this->protocol,
-            "params" => $this->params,
-            "query" => $this->query,
-            "body" => $this->body,
-            "files" => $this->files,
-            "cookie" => $this->cookie,
-            "headers" => $this->headers
+            "originalUrl" => $this->getOriginalUrl(),
+            "method" => $this->getMethod(),
+            "path" => $this->getPath(),
+            "protocol" => $this->getProtocol(),
+            "params" => $this->getParams(),
+            "query" => $this->getQuery(),
+            "body" => $this->getBody(),
+            "files" => $this->getFiles(),
+            "cookie" => $this->getCookie(),
+            "headers" => $this->getHeaders()
         ];
-    }
-
-    /**
-     * The compileOriginalUrl method is used to compile the original URI
-     * @return $this
-     */
-    private function compileOriginalUrl() {
-        $this->setOriginalUrl($_SERVER['REQUEST_URI']);
-        return $this;
-    }
-
-    /**
-     * The setOriginalUrl method is used to set the originional URL for the API
-     * @param $originalUrl
-     */
-    private function setOriginalUrl($originalUrl) {
-        $this->originalUrl = $originalUrl;
     }
 
     /**
@@ -94,58 +79,11 @@ class Request {
     }
 
     /**
-     * The compileMethod method is used to extract the method used to call the API and store the method as part of the
-     * Request object
-     * @return $this
-     * @throws \Exception
-     */
-    private function compileMethod() {
-        $method = $_SERVER["REQUEST_METHOD"];
-
-        if($method == "POST" && array_key_exists("HTTP_X_HTTP_METHOD", $_SERVER)) {
-            if($_SERVER["HTTP_X_HTTP_METHOD"] == "DELETE") {
-                $method = "DELETE";
-            } else if($_SERVER["HTTP_X_HTTP_METHOD"] == "PUT") {
-                $method = "PUT";
-            } else {
-                throw new \Exception('Method not supported');
-            }
-        }
-        $this->setMethod($method);
-        return $this;
-    }
-
-    /**
-     * The setMethod is used to set the method used to call the API
-     * @param $method
-     */
-    private function setMethod($method) {
-        $this->method = strtoupper($method);
-    }
-
-    /**
      * The getMethod method is used to return the method that was used to call the API
      * @return mixed
      */
     public function getMethod() {
         return $this->method;
-    }
-
-    /**
-     * The compilePath method is used to compile the path that is part of the URL that was used to call the API
-     * @return $this
-     */
-    private function compilePath() {
-        $this->setPath('/' . $_GET['path']);
-        return $this;
-    }
-
-    /**
-     * The setPath method is used to set the path that is part of the URL that was used to call this API
-     * @param $path
-     */
-    private function setPath($path) {
-        $this->path = $path;
     }
 
     /**
@@ -157,12 +95,11 @@ class Request {
     }
 
     /**
-     * The compileParams method is used to compile the named params if there are any
-     * @return $this
+     * The getParams method is used to return any named params associated to this request if there are any
+     * @return mixed
      */
-    private function compileParams() {
-        $this->setParams([]);
-        return $this;
+    public function getParams() {
+        return $this->params;
     }
 
     /**
@@ -174,74 +111,11 @@ class Request {
     }
 
     /**
-     * The getParams method is used to return any named params associated to this request if there are any
-     * @return mixed
-     */
-    public function getParams() {
-        return $this->params;
-    }
-
-    /**
-     * The compileQuery method is used to compile the query string into an object if there are any queries in the string.
-     * This method also extends the url, by allowing serialised arrays to be passed in the form of [1,2,3,4]
-     * @return Request
-     */
-    private function compileQuery() {
-        $parsedURL = parse_url($this->originalUrl);
-        $queryString = array_key_exists('query', $parsedURL) ? $parsedURL['query'] : '';
-        $queries = [];
-        if($queryString) parse_str($queryString, $queries);
-        foreach($queries as $key => $query) {
-            if(is_string($query)) {
-                if($query[0] == '[' && substr($query, - 1) == ']') {
-                    $queries[$key] = explode(',', substr($query, 1, (strlen($query) - 2)));
-                }
-            }
-        }
-        $this->setQuery($queries);
-        return $this;
-    }
-
-    /**
-     * The setQuery method is used to set the query object as a property of the Request object
-     * @param $query
-     */
-    private function setQuery($query) {
-        $this->query = $query;
-    }
-
-    /**
      * The getQuery method is used to return the query object
      * @return mixed
      */
     public function getQuery() {
         return $this->query;
-    }
-
-    /**
-     * The compileBody method is used to find the JSON data within the message body if it exists, then to parse it
-     * @return $this
-     */
-    private function compileBody() {
-        $body = array();
-        if($this->method == 'POST' || $this->method == 'PUT') {
-            $input = file_get_contents('php://input');
-            if($input) $body = json_decode($input, true);
-            # Add any data in $_POST
-            foreach($_POST as $key => $value) {
-                $body[$key] = $value;
-            }
-        }
-        $this->setBody($body);
-        return $this;
-    }
-
-    /**
-     * The setBody method is used to set the body object as a parameter of the Request object
-     * @param $body
-     */
-    private function setBody($body) {
-        $this->body = $body;
     }
 
     /**
@@ -253,49 +127,11 @@ class Request {
     }
 
     /**
-     * The compileFiles method is used to find all files in the request
-     * @return $this
-     */
-    private function compileFiles() {
-        $files = [];
-        foreach($_FILES as $key => $value) {
-            $files[$key] = $value;
-        }
-        $this->setFiles($files);
-        return $this;
-    }
-
-    /**
-     * The setFiles method is used to set all files found in the request to the Request object
-     * @param $files
-     */
-    private function setFiles($files) {
-        $this->files = $files;
-    }
-
-    /**
      * The getFiles method is used to return the files that are sent with the request
      * @return array of files sent with the request
      */
     public function getFiles() {
         return $this->files;
-    }
-
-    /**
-     * The compileCookie method is used to take the cookie object and store a reference to it within this class
-     * @return $this
-     */
-    private function compileCookie() {
-        $this->setCookie($_COOKIE);
-        return $this;
-    }
-
-    /**
-     * The setCookie method is used to replace the Request cookie
-     * @param $cookie
-     */
-    private function setCookie($cookie) {
-        $this->cookie = $cookie;
     }
 
     /**
@@ -307,54 +143,11 @@ class Request {
     }
 
     /**
-     * The compileHeaders method is used to find the Request headers
-     * @return $this
-     */
-    private function compileHeaders() {
-        $headersOriginal = apache_request_headers();
-        $headers = [];
-        foreach($headersOriginal as $key => $val) {
-            $headers[strtolower($key)] = $val;
-        }
-        if(array_key_exists('accept-encoding', $headers)) {
-            if(stripos($headers['accept-encoding'], 'gzip') !== false) {
-                ob_start('ob_gzhandler'); # Use gzip to reduce response sizes
-            }
-        }
-        $this->setHeaders($headers);
-        return $this;
-    }
-
-    /**
-     * The setHeaders method is used to replace the Request headers
-     * @param $headers
-     */
-    private function setHeaders($headers) {
-        $this->headers = $headers;
-    }
-
-    /**
      * The getHeaders method is used to return the headers object
      * @return mixed
      */
     public function getHeaders() {
         return $this->headers;
-    }
-
-    /**
-     * The compileProtocol method is used to find the protocol used to call the api, options should be one of either
-     * HTTP or HTTPS
-     */
-    private function compileProtocol() {
-        $this->setProtocol(isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'HTTP');
-    }
-
-    /**
-     * The setProtocol method is used to set the protocol used to call the api
-     * @param $protocol string should be either HTTP or HTTPS
-     */
-    private function setProtocol($protocol) {
-        $this->protocol = strtoupper($protocol);
     }
 
     /**
@@ -375,7 +168,7 @@ class Request {
     public function matchRoutePath($routePath) {
         $params = [];
 
-        $pathPieces = explode('/', substr($this->path, 1));
+        $pathPieces = explode('/', substr($this->getPath(), 1));
 
         $routePathPieces = explode('/', substr($routePath, 1));
 

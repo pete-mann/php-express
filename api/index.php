@@ -32,6 +32,10 @@ $jwt = new JWT();
 // Auth
 $app->post('/auth', [$ctrlAuth, 'auth']);
 
+$app->get('/test', function($req, $res) {
+    $res->json($req->test());
+});
+
 // Client
 $app->middleware($jwt)->get('/client', [$ctrlClient, 'index']);
 $app->middleware($jwt)->get('/client/:clientId', [$ctrlClient, 'show']);
