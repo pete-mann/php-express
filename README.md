@@ -24,7 +24,6 @@ added if required.
 ### Composer
 This project requires composer for autoloading and loading some dependencies such as:
 - Firebase JWT
-- Justin Rainbow json-schema
 
 ### Tests
 Some tests have been written using PHPUnit, Mocha and Chai. The following testing:
@@ -50,7 +49,7 @@ Unit testing can be conducted using PHPUnit from the `tests/unit` directory.
 
 
 ### TODO
-- Include JSON schema validation of request body data.
+- Include JSON schema validation of request body data, see [php-json-schema](https://github.com/swaggest/php-json-schema)
 - Write Swagger documentation including schemas for each endpoint. 
 - Try to use Swagger schemas in testing and validation.
 

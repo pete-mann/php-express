@@ -39,22 +39,22 @@ $app->get('/test', function($req, $res) {
 // Client
 $app->middleware($jwt)->get('/client', [$ctrlClient, 'index']);
 $app->middleware($jwt)->get('/client/:clientId', [$ctrlClient, 'show']);
-$app->middleware($jwt)->post('/client', [$ctrlClient, 'update']);
+$app->middleware($jwt)->put('/client', [$ctrlClient, 'update']);
 
 // Project
 $app->middleware($jwt)->get('/client/:clientId/project', [$ctrlProject, 'getClientProjects']);
 $app->middleware($jwt)->get('/client/:clientId/project/:projectId', [$ctrlProject, 'show']);
-$app->middleware($jwt)->post('/client/:clientId/project/:projectId', [$ctrlProject, 'update']);
+$app->middleware($jwt)->put('/client/:clientId/project/:projectId', [$ctrlProject, 'update']);
 
 // WorkCode
 $app->middleware($jwt)->get('/client/:clientId/project/:projectId/workcode', [$ctrlWorkCode, 'getClientProjectWorkCode']);
 $app->middleware($jwt)->get('/client/:clientId/project/:projectId/workcode/:workCodeId', [$ctrlWorkCode, 'show']);
-$app->middleware($jwt)->post('/client/:clientId/project/:projectId/workcode/:workCodeId', [$ctrlWorkCode, 'update']);
+$app->middleware($jwt)->put('/client/:clientId/project/:projectId/workcode/:workCodeId', [$ctrlWorkCode, 'update']);
 
 // Activity
 $app->middleware($jwt)->get('/client/:clientId/project/:projectId/workcode/:workCodeId/activity', [$ctrlActivity, 'getClientProjectWorkCodeActivities']);
 $app->middleware($jwt)->get('/client/:clientId/project/:projectId/workcode/:workCodeId/activity/:activityId', [$ctrlActivity, 'show']);
-$app->middleware($jwt)->post('/client/:clientId/project/:projectId/workcode/:workCodeId/activity/:activityId', [$ctrlActivity, 'update']);
+$app->middleware($jwt)->put('/client/:clientId/project/:projectId/workcode/:workCodeId/activity/:activityId', [$ctrlActivity, 'update']);
 
 /**
  * The otherwise method is used to handle un-matched requests, this endpoint returns a 404 error
