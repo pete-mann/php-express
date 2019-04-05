@@ -1,5 +1,18 @@
-### Php Express
+## Php Express
 This project is a light weight version of the popular expressjs Nodejs framework.
+
+### Requirements
+This is a LAMP or WAMP project, written for PHP 7. 
+- Composer is required.
+- Npm and Nodejs are required for tests.
+- Mod rewrite must be enabled.
+- Mysql is required. Currently only Mysql is supported.
+
+### Installation
+Please read the requirements section first as this section will direct you to use some of the pre-requisites.
+1. Clone the directory using `git clone https://github.com/pete-mann/php-express.git`
+2. Install dependencies with Composer, `cd php-express && composer install`
+3. If you wish to using system tests, it is necessary to install the npm dependencies. From the project root `cd tests/system && npm install`
 
 ### About
 While this is similar to Expressjs, this project does not attempt to do everything that Expressjs does. For example regex 
@@ -9,15 +22,37 @@ The project is designed for Apache with mod_rewrite support required. NGINX supp
 added if required. 
 
 ### Composer
-This project requires composer for autoloading.
+This project requires composer for autoloading and loading some dependencies such as:
+- Firebase JWT
+- Justin Rainbow json-schema
 
 ### Tests
-Some tests have been written using PHPUnit, there is currently some minor refactoring required to make this project testable. 
-This is because the program depends on Apache or similar webserver to glean data such as the current URL. This data will need
-to be mocked during testing.
+Some tests have been written using PHPUnit, Mocha and Chai. The following testing:
+- Performance testing will be written using Apache Bench (AB).
+- System testing will be written using Mocha and Chai.
+- Integration testing will be written using PHPUnit 7.
+- Unit testing will be written using PHPUnit 7.
+
+### Test Guides
+
+#### Performance Test Guide
+Performance testing can be executed by running the `tests/performance/performanceTest.sh` file.
+
+#### System Test Guide
+System testing can be conducted from the `tests/system` directory by issuing `npm test`. This will run every `*.test.js` 
+file in the `tests/system` directory.
+
+#### Integration Test Guide
+Integration tests can be conducted using PHPUnit from the `tests/integration` directory.
+ 
+#### Unit Test Guide
+Unit testing can be conducted using PHPUnit from the `tests/unit` directory.
+
 
 ### TODO
-Include JSON schema validation of request body data.
+- Include JSON schema validation of request body data.
+- Write Swagger documentation including schemas for each endpoint. 
+- Try to use Swagger schemas in testing and validation.
 
 ### Example usage
 This example usage is included in the `/api/index.php` file and is presented here for the benfit of readers.
