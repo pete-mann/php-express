@@ -2,14 +2,15 @@
   "name": "system",
   "version": "1.0.0",
   "description": "Conduct system testing of the php-express program",
-  "main": "index.js",
+  "main": "index.test.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/.bin/mocha *.test.js"
   },
   "author": "peter.mann.design@gmail.com",
   "license": "ISC",
   "dependencies": {
     "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
     "mocha": "^6.0.2"
   }
 }
