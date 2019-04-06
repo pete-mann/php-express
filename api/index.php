@@ -10,6 +10,7 @@ use \ExpressPHP\core\App;
 use \ExpressPHP\core\Request;
 use \ExpressPHP\core\Response;
 use \ExpressPHP\middlewares\JWT;
+use \ExpressPHP\middlewares\JsonSchemaValidator;
 use \ExpressPHP\controllers\CtrlAuth;
 use \ExpressPHP\controllers\CtrlClient;
 use \ExpressPHP\controllers\CtrlProject;
@@ -23,6 +24,7 @@ $ctrlProject = new CtrlProject();
 $ctrlWorkCode = new CtrlWorkCode();
 $ctrlActivity = new CtrlActivity();
 $jwt = new JWT();
+$jsonSchemaValidator = new JsonSchemaValidator();
 
 /**
  * Specify a callable method of a class like this so as to use a controller to handle the request. This approach will
@@ -31,6 +33,10 @@ $jwt = new JWT();
 
 // Auth
 $app->post('/auth', [$ctrlAuth, 'auth']);
+
+$app->middleware($jsonSchemaValidator)->get('/test/test/:testId', function($req, $res) {
+    $res->json($req->test());
+});
 
 // Client
 $app->middleware($jwt)->get('/client', [$ctrlClient, 'index']);
