@@ -19,6 +19,8 @@ class Request {
 
     private $params = [];
 
+    private $requestId = '';
+
     private $query = [];
 
     private $body = [];
@@ -57,6 +59,7 @@ class Request {
      */
     public function test() {
         return [
+            "requestId" => $this->getRequestId(),
             "originalUrl" => $this->getOriginalUrl(),
             "method" => $this->getMethod(),
             "path" => $this->getPath(),
@@ -108,6 +111,22 @@ class Request {
      */
     private function setParams($params) {
         $this->params = $params;
+    }
+
+    /**
+     * The getRequestId method is used to get the unique id for each request
+     * @return string
+     */
+    public function getRequestId(): string {
+        return $this->requestId;
+    }
+
+    /**
+     * The setRequestId method is used to set the unique id for each request
+     * @param string $requestId
+     */
+    public function setRequestId(string $requestId) {
+        $this->requestId = $requestId;
     }
 
     /**
@@ -166,6 +185,9 @@ class Request {
      * @return bool
      */
     public function matchRoutePath($routePath) {
+
+        $requestId = $this->getMethod(); # Start with the method type
+
         $params = [];
 
         $pathPieces = explode('/', substr($this->getPath(), 1));
@@ -179,12 +201,18 @@ class Request {
         } else {
             for($i = 0; $i < count($routePathPieces); $i++) {
                 if(substr($routePathPieces[$i], 0, 1) == ':') {
-                    $params[substr($routePathPieces[$i], 1)] = $pathPieces[$i];
+                    $peice = substr($routePathPieces[$i], 1);
+                    $requestId .= ".{$peice}";
+                    $params[$peice] = $pathPieces[$i];
                 } else if($routePathPieces[$i] != $pathPieces[$i]) {
                     $isMatch = false;
+                } else {
+                    $requestId .= ".{$routePathPieces[$i]}";
                 }
             }
         }
+
+        $this->setRequestId(strtolower($requestId));
 
         if($isMatch == true) $this->setParams($params);
         return $isMatch;
